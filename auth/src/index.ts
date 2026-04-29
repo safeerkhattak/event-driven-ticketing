@@ -10,7 +10,7 @@ import { signupRouter } from './routes/signup';
 import { NotFoundError } from './errors/not-found-error';
 
 const app = express()
-app.set('trust proxy',true)
+app.set('trust proxy',true) // to let express that its behind the proxy of ingress engine x
 app.use(express.json())
 app.use(
     cookieSession({
@@ -33,15 +33,22 @@ app.use(signupRouter);
 //   throw new NotFoundError();ß
 // });
 
-app.use(async (req, res) => {
-  console.log("not found");
-  throw new NotFoundError();
+// app.use(async (req, res) => {
+//   console.log("not found");
+//   throw new NotFoundError();
+// }); // this code wass causing 502 bad gateway remove the password from response
+
+app.use((req, res, next) => {
+  next(new NotFoundError());
 });
 
 
 app.use(errorHandler);
 
 const start=async()=>{
+    if(!process.env.JWT_KEY){
+        throw new Error("JWT_KEY is not defined")
+    }
     try {
         await mongoose.connect("mongodb://auth-mongo-srv:27017/auth") //creating a new db called authß
         console.log("connected to mongodb")
