@@ -1,0 +1,31 @@
+# Node modules (all services and client)
+**/node_modules/
+
+# Logs
+**/logs/
+**/*.log
+
+# Environment variables (all services)
+**/.env
+
+# Mac system files
+.DS_Store
+
+# npm debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# VSCode settings
+.vscode/
+
+# Build / dist folders (if any service compiles code)
+**/dist/
+**/build/
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS-specific files
+Thumbs.db

@@ -1,12 +1,11 @@
 import express from "express";
-
-import cookieSession from "cookie-session"
-
-import { currentUserRouter } from './routes/current-user';
-import { signinRouter } from './routes/signin';
-import { signoutRouter } from './routes/signout';
-import { signupRouter } from './routes/signup';
-import { NotFoundError, errorHandler } from '@udemy-ticket/common';
+import 'express-async-errors';
+import cookieSession from 'cookie-session';
+import { createTicketRouter } from './routes/new';
+import { showTicketRouter } from './routes/show'; 
+import { indexTicketRouter } from './routes/index';
+import { updateTicketRouter } from './routes/update';
+import { NotFoundError, errorHandler, currentUser } from '@udemy-ticket/common';
 
 const app = express()
 app.set('trust proxy',true) // to let express that its behind the proxy of ingress engine x
@@ -18,14 +17,13 @@ app.use(
     })
 )
 
-// app.get("/api/users/currentuser",(req,res)=>{
-//     res.send("Hi there!") 
-// })
+app.use(currentUser);
 
-app.use(currentUserRouter);
-app.use(signinRouter);
-app.use(signoutRouter);
-app.use(signupRouter);
+app.use(createTicketRouter);
+app.use(showTicketRouter);
+app.use(indexTicketRouter);
+app.use(updateTicketRouter);
+
 
 // app.use('/*', async (req, res) => {
 //     console.log("not found")
