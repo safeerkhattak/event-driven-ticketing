@@ -1,5 +1,5 @@
 import nats, { Message, Stan } from "node-nats-streaming";
-
+import {TicketCreatedListener} from './events/ticket-created-listener'
 console.clear();
 const id = Math.floor(Math.random() * 10000);
 const stan = nats.connect("ticketing", String(id), {
@@ -50,54 +50,54 @@ process.on("SIGTERM", () => stan.close()); // terminate
 
 //3 more solution that will not work to solve the concurrency issue
 
-
-abstract class Listener {
-  abstract subject: string;
-  abstract queueGroupName: string;
-  abstract  onMessage(data:any,msg:Message):void;
-  private client: Stan;
-  protected ackwait = 5* 1000;
+//Refactor: Below code has been moved to different folder 
+// abstract class Listener {
+//   abstract subject: string;
+//   abstract queueGroupName: string;
+//   abstract  onMessage(data:any,msg:Message):void;
+//   private client: Stan;
+//   protected ackwait = 5* 1000;
   
 
-  constructor(client: Stan){
-    this.client = client
-  }
+//   constructor(client: Stan){
+//     this.client = client
+//   }
 
-  subscriptionOptions(){
-    return this.client
-      .subscriptionOptions()
-      .setDeliverAllAvailable()
-      .setAckWait(this.ackwait)
-      .setDurableName(this.queueGroupName)
-  }
+//   subscriptionOptions(){
+//     return this.client
+//       .subscriptionOptions()
+//       .setDeliverAllAvailable()
+//       .setAckWait(this.ackwait)
+//       .setDurableName(this.queueGroupName)
+//   }
 
-  listen(){
-    const subscription = this.client.subscribe(
-      this.subject,
-      this.queueGroupName,
-      this.subscriptionOptions(),
-    );
-    subscription.on('message',(msg:Message)=>{
-      console.log(`Message recieved: ${this.subject}/${this.queueGroupName}`)
+//   listen(){
+//     const subscription = this.client.subscribe(
+//       this.subject,
+//       this.queueGroupName,
+//       this.subscriptionOptions(),
+//     );
+//     subscription.on('message',(msg:Message)=>{
+//       console.log(`Message recieved: ${this.subject}/${this.queueGroupName}`)
       
-      const parseData = this.parseMessage(msg);
-      this.onMessage(parseData,msg)
-    })
-  }
-  parseMessage(msg:Message){
-    const data = msg.getData()
-    return typeof data === 'string'
-      ? JSON.parse(data)
-      : JSON.parse(data.toString('utf8'))
-  }
-}
+//       const parseData = this.parseMessage(msg);
+//       this.onMessage(parseData,msg)
+//     })
+//   }
+//   parseMessage(msg:Message){
+//     const data = msg.getData()
+//     return typeof data === 'string'
+//       ? JSON.parse(data)
+//       : JSON.parse(data.toString('utf8'))
+//   }
+// }
 
-class TicketCreatedListener extends Listener{
-   subject = 'ticket:created';
-   queueGroupName = 'payment-service';
-   onMessage(data: any, msg: Message): void {
-      console.log("Event data!",data)
-      msg.ack()
-   }
+// class TicketCreatedListener extends Listener{
+//    subject = 'ticket:created';
+//    queueGroupName = 'payment-service';
+//    onMessage(data: any, msg: Message): void {
+//       console.log("Event data!",data)
+//       msg.ack()
+//    }
 
-}
+// }
